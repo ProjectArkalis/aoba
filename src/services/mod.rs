@@ -2,10 +2,11 @@ use crate::grpc;
 use crate::grpc::ArkalisGrpc;
 use rocket::{async_trait, Build, Rocket};
 use std::sync::Arc;
+use crate::services::image_service::ImageService;
 
-mod image_service;
+pub mod image_service;
 
-pub(crate) type MutexGrpc = Arc<tokio::sync::Mutex<ArkalisGrpc>>;
+pub type MutexGrpc = Arc<tokio::sync::Mutex<ArkalisGrpc>>;
 
 #[async_trait]
 pub trait AddServices {
@@ -20,6 +21,6 @@ impl AddServices for Rocket<Build> {
                 .await
                 .expect("Failed to connect to Arkalis"),
         ));
-        self.manage(grpc)
+        self.manage(ImageService::new(grpc))
     }
 }
