@@ -1,2 +1,3 @@
 [default]
 port = 8001
+limits = {file = "25 mb", data-form = "25 mb", bytes = "25 mb", form = "25 mb"}

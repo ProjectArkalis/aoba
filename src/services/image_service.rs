@@ -21,21 +21,26 @@ impl ImageService {
         &self,
         file: &mut TempFile<'r>,
         token: String,
-    ) -> Result<(), AobaError> {
+    ) -> Result<String, AobaError> {
         self.check_arkalis_auth(token).await?;
 
         let content_type = file
             .content_type()
             .ok_or(AobaError::InvalidFileType)?
             .clone();
+
+        if !content_type.is_png() && !content_type.is_jpeg() {
+            return Err(AobaError::InvalidFileType);
+        }
+
         let ext = content_type.extension().ok_or(AobaError::InvalidFileType)?;
 
         let image_name = format!("{}.{}", cuid2::cuid(), ext);
 
-        file.copy_to(Self::get_upload_folder().await?.join(image_name))
+        file.copy_to(Self::get_upload_folder().await?.join(&image_name))
             .await
             .map_err(|e| AobaError::Unknown(e.into()))?;
-        Ok(())
+        Ok(image_name)
     }
 
     async fn get_upload_folder() -> Result<PathBuf, AobaError> {
