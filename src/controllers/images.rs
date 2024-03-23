@@ -15,8 +15,8 @@ pub(super) async fn upload_image(
     token: Token,
     image_service: &State<ImageService>,
     mut data: Form<ImageUploadForm<'_>>,
-) -> Result<(), AobaError> {
+) -> Result<String, AobaError> {
     let Token(token) = token;
-    image_service.upload_image(&mut data.image, token).await?;
-    Ok(())
+    let filename = image_service.upload_image(&mut data.image, token).await?;
+    Ok(filename)
 }
