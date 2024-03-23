@@ -1,7 +1,7 @@
-use rocket::{Build, Rocket, routes};
+use rocket::{routes, Build, Rocket};
 
-mod test;
 mod images;
+mod test;
 
 pub trait AddControllers {
     fn add_controllers(self) -> Self;

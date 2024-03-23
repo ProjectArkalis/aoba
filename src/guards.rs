@@ -1,7 +1,7 @@
-use rocket::http::Status;
-use rocket::Request;
-use rocket::request::{FromRequest, Outcome};
 use crate::errors::AobaError;
+use rocket::http::Status;
+use rocket::request::{FromRequest, Outcome};
+use rocket::Request;
 
 pub struct Token(pub String);
 

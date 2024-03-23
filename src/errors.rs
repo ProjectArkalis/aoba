@@ -1,6 +1,6 @@
 use rocket::http::Status;
-use rocket::Request;
 use rocket::response::Responder;
+use rocket::Request;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -23,7 +23,7 @@ impl<'r> Responder<'r, 'static> for AobaError {
             AobaError::Unknown(e) => (Status::new(500), e.to_string()),
             AobaError::InvalidFileType => (Status::new(400), self.to_string()),
         };
-        
+
         log::error!("{}", resp.1);
         Err(resp.0)
     }

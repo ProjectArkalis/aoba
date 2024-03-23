@@ -1,8 +1,8 @@
 use crate::grpc;
 use crate::grpc::ArkalisGrpc;
+use crate::services::image_service::ImageService;
 use rocket::{async_trait, Build, Rocket};
 use std::sync::Arc;
-use crate::services::image_service::ImageService;
 
 pub mod image_service;
 
