@@ -24,7 +24,6 @@ impl ImageService {
         let ext = content_type.extension().ok_or(AobaError::InvalidFileType)?;
 
         let image_name = format!("{}.{}", cuid2::cuid(), ext);
-        println!("{image_name}");
 
         file.copy_to(Self::get_upload_folder().await?.join(image_name)).await.map_err(|e| AobaError::Unknown(e.into()))?;
         Ok(())

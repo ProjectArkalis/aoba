@@ -14,7 +14,7 @@ impl<'r> FromRequest<'r> for Token {
         match auth_header {
             None => Outcome::Error((Status::new(401), AobaError::Unauthorized)),
             Some(token) => {
-                let token = token.split(' ').skip(1).next().clone();
+                let token = token.split(' ').nth(1);
                 match token {
                     Some(token) => Outcome::Success(Token(token.to_owned())),
                     None => Outcome::Error((Status::new(401), AobaError::Unauthorized)),

@@ -7,7 +7,7 @@ use crate::services::image_service::ImageService;
 
 #[derive(FromForm)]
 pub(super) struct ImageUploadForm<'a> {
-    pub image: TempFile<'a>
+    image: TempFile<'a>
 }
 
 #[post("/", data = "<data>")]
