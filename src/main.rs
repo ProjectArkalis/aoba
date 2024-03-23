@@ -1,9 +1,13 @@
+use rocket::launch;
+
+use crate::controllers::AddControllers;
+use crate::services::AddServices;
+
 mod services;
 mod controllers;
 mod guards;
-
-use rocket::launch;
-use crate::controllers::AddControllers;
+mod errors;
+mod grpc;
 
 pub mod arkalis_service {
     tonic::include_proto!("arkalis");
@@ -11,6 +15,6 @@ pub mod arkalis_service {
 
 
 #[launch]
-fn rocket() -> _ {
-    rocket::build().add_controllers()
+async fn rocket() -> _ {
+    rocket::build().add_services().await.add_controllers()
 }
