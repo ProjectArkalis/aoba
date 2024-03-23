@@ -1,3 +1,6 @@
-fn main() {
-    println!("Hello, world!");
+use rocket::launch;
+
+#[launch]
+fn rocket() -> _ {
+    rocket::build()
 }
