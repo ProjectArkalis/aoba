@@ -1,5 +1,5 @@
+use rocket::fs::{relative, FileServer};
 use rocket::{routes, Build, Rocket};
-use rocket::fs::{FileServer, relative};
 
 mod images;
 mod test;
@@ -11,7 +11,7 @@ pub trait AddControllers {
 impl AddControllers for Rocket<Build> {
     fn add_controllers(self) -> Self {
         self.mount("/tests", routes![test::test])
-            .mount("/images", routes![images::upload_image])
+            .mount("/images", routes![images::upload_image, images::upload_url])
             .mount("/images", FileServer::from(relative!("./uploads")))
     }
 }

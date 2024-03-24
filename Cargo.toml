@@ -6,14 +6,17 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = "0.5.0"
+rocket = { version = "0.5.0", features = ["json"] }
 tonic = "0.11.0"
 prost = "0.12.3"
 anyhow = "1.0.81"
 thiserror = "1.0.58"
-tokio = { version = "1.36.0", features = ["sync", "fs"] }
+tokio = { version = "1.36.0", features = ["sync", "fs", "io-util"] }
 cuid2 = "0.1.2"
 log = "0.4.21"
+reqwest = { version = "0.12.1", features = ["rustls-tls"] }
+serde = { version = "1.0.197", features = ["derive"] }
+serde_json = "1.0.114"
 
 [build-dependencies]
 tonic-build = "0.11.0"
