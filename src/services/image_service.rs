@@ -1,5 +1,4 @@
 use std::io::Cursor;
-use std::io::Read;
 use std::path::{Path, PathBuf};
 
 use rocket::fs::TempFile;
