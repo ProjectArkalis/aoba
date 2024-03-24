@@ -1,8 +1,10 @@
 use std::io::Cursor;
+use std::io::Read;
 use std::path::{Path, PathBuf};
 
 use rocket::fs::TempFile;
 use rocket::http::ContentType;
+use sha2::{Digest, Sha512};
 use tonic::metadata::errors::InvalidMetadataValue;
 use tonic::{Code, Request};
 
@@ -35,11 +37,20 @@ impl ImageService {
             return Err(AobaError::InvalidFileType);
         }
 
-        let image_name = get_file_name(&content_type)?;
-
-        file.copy_to(Self::get_upload_folder().await?.join(&image_name))
+        let mut stream = file
+            .open()
             .await
             .map_err(|e| AobaError::Unknown(e.into()))?;
+        let mut buffer = Vec::<u8>::with_capacity(file.len() as usize);
+        tokio::io::copy(&mut stream, &mut buffer)
+            .await
+            .map_err(|e| AobaError::Unknown(e.into()))?;
+
+        let image_name = get_file_name(&content_type, &buffer)?;
+
+        let path = get_upload_folder().await?.join(&image_name);
+        save_buffer_in_file(&buffer, &path).await?;
+
         Ok(image_name)
     }
 
@@ -70,37 +81,16 @@ impl ImageService {
             return Err(AobaError::InvalidFileType);
         }
 
-        let file_name = get_file_name(&content_type)?;
-
-        let mut file = tokio::fs::File::create(Self::get_upload_folder().await?.join(&file_name))
+        let bytes = response
+            .bytes()
             .await
             .map_err(|e| AobaError::Unknown(e.into()))?;
+        let file_name = get_file_name(&content_type, &bytes)?;
 
-        let mut content = Cursor::new(
-            response
-                .bytes()
-                .await
-                .map_err(|e| AobaError::Unknown(e.into()))?,
-        );
-        tokio::io::copy(&mut content, &mut file)
-            .await
-            .map_err(|e| AobaError::Unknown(e.into()))?;
+        let path = get_upload_folder().await?.join(&file_name);
+        save_buffer_in_file(&bytes, &path).await?;
 
         Ok(file_name)
-    }
-
-    async fn get_upload_folder() -> Result<PathBuf, AobaError> {
-        let path = Path::new("./uploads");
-
-        if !path.exists() {
-            tokio::fs::create_dir_all(path)
-                .await
-                .map_err(|e| AobaError::Unknown(e.into()))?;
-        }
-
-        tokio::fs::canonicalize(path)
-            .await
-            .map_err(|e| AobaError::Unknown(e.into()))
     }
 
     async fn check_arkalis_auth(&self, token: String) -> Result<(), AobaError> {
@@ -135,7 +125,41 @@ impl ImageService {
     }
 }
 
-fn get_file_name(content_type: &ContentType) -> Result<String, AobaError> {
+fn get_file_name(content_type: &ContentType, bytes: &[u8]) -> Result<String, AobaError> {
     let ext = content_type.extension().ok_or(AobaError::InvalidFileType)?;
-    Ok(format!("{}.{}", cuid2::cuid(), ext))
+    let mut hasher = Sha512::new();
+    hasher.update(bytes);
+
+    Ok(format!("{:X}.{}", hasher.finalize(), ext))
+}
+
+async fn save_buffer_in_file(bytes: &[u8], path: &Path) -> Result<(), AobaError> {
+    if path.exists() {
+        return Ok(());
+    }
+
+    let mut file = tokio::fs::File::create(path)
+        .await
+        .map_err(|e| AobaError::Unknown(e.into()))?;
+
+    let mut content = Cursor::new(bytes);
+    tokio::io::copy(&mut content, &mut file)
+        .await
+        .map_err(|e| AobaError::Unknown(e.into()))?;
+
+    Ok(())
+}
+
+async fn get_upload_folder() -> Result<PathBuf, AobaError> {
+    let path = Path::new("./uploads");
+
+    if !path.exists() {
+        tokio::fs::create_dir_all(path)
+            .await
+            .map_err(|e| AobaError::Unknown(e.into()))?;
+    }
+
+    tokio::fs::canonicalize(path)
+        .await
+        .map_err(|e| AobaError::Unknown(e.into()))
 }
