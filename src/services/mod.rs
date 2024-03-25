@@ -1,3 +1,4 @@
+use crate::config::AobaConfig;
 use crate::grpc;
 use crate::grpc::ArkalisGrpc;
 use crate::services::image_service::ImageService;
@@ -16,11 +17,14 @@ pub trait AddServices {
 #[async_trait]
 impl AddServices for Rocket<Build> {
     async fn add_services(self) -> Self {
+        let config = AobaConfig::new();
+
         let grpc = Arc::new(tokio::sync::Mutex::new(
-            grpc::get_client()
+            grpc::get_client(&config)
                 .await
                 .expect("Failed to connect to Arkalis"),
         ));
+
         self.manage(ImageService::new(grpc))
     }
 }

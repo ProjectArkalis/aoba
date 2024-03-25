@@ -37,6 +37,7 @@ name = "aoba"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "figment",
  "log",
  "prost",
  "reqwest",
@@ -371,6 +372,7 @@ dependencies = [
  "atomic 0.6.0",
  "pear",
  "serde",
+ "serde_json",
  "toml",
  "uncased",
  "version_check",

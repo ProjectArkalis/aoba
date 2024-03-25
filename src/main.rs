@@ -3,6 +3,7 @@ use rocket::launch;
 use crate::controllers::AddControllers;
 use crate::services::AddServices;
 
+mod config;
 mod controllers;
 mod errors;
 mod grpc;
