@@ -10,20 +10,24 @@ ENV BASE=/usr
 RUN cp ./proto/bin/protoc ${BASE}/bin/
 RUN cp -R ./proto/include/* ${BASE}/include/
 
-WORKDIR /usr/src/aoba
+WORKDIR /app
 COPY . .
 
-RUN cargo install --path .
+RUN cargo build --release
 
 
 FROM debian:bookworm-slim
 
+ENV AOBA_ARKALIS_URL=https://api.arkalis.org
+
 RUN apt-get update \
     && apt-get install openssl -y
 
-COPY --from=builder /usr/local/cargo/bin/aoba /usr/local/bin/aoba
+WORKDIR /app
+COPY --from=builder /app/target/release/aoba .
+
 EXPOSE 8001
 
-WORKDIR /app
+RUN mkdir uploads
 
-ENTRYPOINT ["aoba"]
+ENTRYPOINT ["./aoba"]
