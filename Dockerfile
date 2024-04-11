@@ -23,4 +23,7 @@ RUN apt-get update \
 
 COPY --from=builder /usr/local/cargo/bin/aoba /usr/local/bin/aoba
 EXPOSE 8001
+
+WORKDIR /app
+
 ENTRYPOINT ["aoba"]
