@@ -21,7 +21,7 @@ FROM debian:bookworm-slim
 ENV AOBA_ARKALIS_URL=https://api.arkalis.org
 
 RUN apt-get update \
-    && apt-get install openssl -y
+    && apt-get install openssl curl -y
 
 WORKDIR /app
 COPY --from=builder /app/target/release/aoba .
