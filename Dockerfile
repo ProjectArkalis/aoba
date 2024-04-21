@@ -25,6 +25,7 @@ RUN apt-get update \
 
 WORKDIR /app
 COPY --from=builder /app/target/release/aoba .
+COPY Rocket.toml .
 
 EXPOSE 8001
 
